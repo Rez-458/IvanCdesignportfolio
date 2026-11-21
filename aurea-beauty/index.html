@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Aurea Beauty Studio | wersja demo</title>
+<meta name="description" content="Demo strony salonu beauty: pięć widoków, animacje przy przewijaniu, kalkulator zabiegów, galeria i formularz kontaktowy.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f5efe6; --bg2:#ece3d6; --ink:#2b2420; --muted:#6b5f55; --line:#d9cdbd; --accent:#8a5a3c; --accent2:#b88a68; --dark:#2b2420;
+  --serif:"Cormorant Garamond",Georgia,"Times New Roman",serif; --sans:"Jost",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --out:cubic-bezier(.23,1,.32,1); --inout:cubic-bezier(.77,0,.175,1);
+  --pad:clamp(20px,5vw,72px);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-weight:400;font-size:17px;line-height:1.65;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+img{display:block;max-width:100%}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+::selection{background:var(--accent);color:#fff}
+
+/* header */
+header{position:fixed;inset:0 0 auto 0;z-index:50;display:flex;align-items:center;justify-content:space-between;padding:18px var(--pad);transition:background .3s var(--out),box-shadow .3s var(--out),padding .3s var(--out)}
+header.solid{background:rgba(245,239,230,.92);backdrop-filter:blur(10px);box-shadow:0 1px 0 var(--line);padding-top:12px;padding-bottom:12px}
+.logo{font-family:var(--serif);font-size:28px;font-weight:500;letter-spacing:.02em;color:var(--ink)}
+.logo em{font-style:italic;color:var(--accent)}
+header.onhero:not(.solid) .logo,header.onhero:not(.solid) nav a{color:#fff}
+header.onhero:not(.solid) .logo em{color:#f0d6bd}
+nav{display:flex;gap:34px;align-items:center}
+nav a{font-size:14px;letter-spacing:.12em;text-transform:uppercase;position:relative;padding:6px 0;transition:color .2s}
+nav a::after{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;background:currentColor;transform:scaleX(0);transform-origin:left;transition:transform .3s var(--out)}
+nav a:hover::after,nav a.on::after{transform:scaleX(1)}
+.burger{display:none;width:44px;height:44px;position:relative;z-index:60}
+.burger span{position:absolute;left:10px;right:10px;height:1.5px;background:var(--ink);transition:transform .3s var(--out),opacity .2s,top .3s var(--out)}
+.burger span:nth-child(1){top:16px}.burger span:nth-child(2){top:22px}.burger span:nth-child(3){top:28px}
+header.onhero:not(.solid) .burger span{background:#fff}
+body.menu .burger span{background:var(--ink)!important}
+body.menu .burger span:nth-child(1){top:22px;transform:rotate(45deg)}
+body.menu .burger span:nth-child(2){opacity:0}
+body.menu .burger span:nth-child(3){top:22px;transform:rotate(-45deg)}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;gap:12px;padding:16px 30px;background:var(--dark);color:#fff;font-size:14px;letter-spacing:.14em;text-transform:uppercase;border-radius:999px;transition:transform .16s var(--out),background .25s,box-shadow .25s}
+.btn:hover{background:var(--accent);box-shadow:0 10px 30px -12px rgba(138,90,60,.7)}
+.btn:active{transform:scale(.97)}
+.btn.light{background:#fff;color:var(--ink)}
+.btn.light:hover{background:var(--bg2)}
+.btn.ghost{background:transparent;border:1px solid currentColor;color:inherit}
+.btn.ghost:hover{background:var(--ink);color:#fff;border-color:var(--ink)}
+.btn .ar{transition:transform .3s var(--out)}
+.btn:hover .ar{transform:translateX(5px)}
+
+/* views */
+main{min-height:100vh}
+.view{display:none}
+.view.show{display:block;animation:viewIn .5s var(--out) both}
+@keyframes viewIn{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+section{padding:clamp(70px,10vw,140px) var(--pad)}
+.wrap{max-width:1240px;margin:0 auto}
+.eyebrow{font-size:13px;letter-spacing:.22em;text-transform:uppercase;color:var(--accent);margin-bottom:22px}
+h1,h2,h3{font-family:var(--serif);font-weight:500;line-height:1.05;letter-spacing:-.005em}
+h1{font-size:clamp(46px,8vw,118px)}
+h2{font-size:clamp(36px,5vw,68px)}
+h3{font-size:clamp(26px,2.6vw,34px);line-height:1.15}
+h1 em,h2 em{font-style:italic;color:var(--accent)}
+p.lead{font-size:clamp(18px,1.6vw,21px);color:var(--muted);max-width:560px;margin-top:24px}
+
+/* reveal */
+.rv{opacity:0;transform:translateY(26px);transition:opacity .8s var(--out),transform .8s var(--out);transition-delay:calc(var(--d,0)*80ms)}
+.rv.in{opacity:1;transform:none}
+.mask{overflow:hidden;position:relative}
+.mask img{transform:scale(1.12);transition:transform 1.6s var(--out)}
+.mask.in img{transform:scale(1)}
+.mask::after{content:"";position:absolute;inset:0;background:var(--bg);transform-origin:top;transition:transform 1.1s var(--inout);transition-delay:calc(var(--d,0)*80ms)}
+.mask.in::after{transform:scaleY(0)}
+.alt .mask::after{background:var(--bg2)}
+
+/* hero */
+.hero{position:relative;height:100vh;min-height:620px;display:flex;align-items:flex-end;padding:0 var(--pad) clamp(48px,8vh,96px);color:#fff;overflow:hidden}
+.hero img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;animation:slow 22s ease-out both}
+@keyframes slow{from{transform:scale(1.14)}to{transform:scale(1)}}
+.hero::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(30,22,16,.35) 0%,rgba(30,22,16,.1) 40%,rgba(30,22,16,.7) 100%);z-index:1}
+.hero .in{position:relative;z-index:2;display:grid;gap:34px;max-width:1240px;width:100%;margin:0 auto}
+.hero h1 em{color:#f0d6bd}
+.hero .row{display:flex;flex-wrap:wrap;gap:16px;align-items:center}
+.hero .eyebrow{text-shadow:0 1px 12px rgba(30,22,16,.6)}
+.hero .sub{max-width:480px;font-size:19px;color:rgba(255,255,255,.88)}
+.hl{display:block;overflow:hidden;padding-bottom:.08em}
+.hl>span{display:block;transform:translateY(105%);animation:up 1s var(--out) forwards;animation-delay:calc(var(--d,0)*120ms + .15s)}
+@keyframes up{to{transform:none}}
+.fadeup{opacity:0;transform:translateY(18px);animation:fu .9s var(--out) forwards;animation-delay:calc(var(--d,0)*120ms + .15s)}
+@keyframes fu{to{opacity:1;transform:none}}
+.scrollcue{position:absolute;right:var(--pad);bottom:clamp(48px,8vh,96px);z-index:2;writing-mode:vertical-rl;font-size:12px;letter-spacing:.3em;text-transform:uppercase;display:flex;align-items:center;gap:14px;color:rgba(255,255,255,.8)}
+.scrollcue::after{content:"";width:1px;height:60px;background:rgba(255,255,255,.6);animation:cue 2s var(--inout) infinite;transform-origin:top}
+@keyframes cue{0%{transform:scaleY(0)}60%{transform:scaleY(1)}100%{transform:scaleY(1);opacity:0}}
+
+
+/* intro */
+.intro{position:fixed;inset:0;z-index:200;background:var(--dark);color:#f5efe6;display:grid;place-items:center;transition:transform 1.1s var(--inout)}
+.intro.out{transform:translateY(-100%)}
+.intro .lg{font-family:var(--serif);font-size:clamp(46px,9vw,120px);font-weight:500;line-height:1;display:flex;overflow:hidden;padding:.08em .04em}
+.intro .lg span{display:inline-block;transform:translateY(110%);transition:transform .9s var(--out);transition-delay:calc(var(--i)*60ms)}
+.intro .lg em{color:var(--accent2);font-style:italic}
+.intro.on .lg span{transform:none}
+.intro .bar{position:absolute;left:50%;bottom:18vh;width:min(220px,40vw);height:1px;background:rgba(245,239,230,.25);transform:translateX(-50%);overflow:hidden}
+.intro .bar::after{content:"";position:absolute;inset:0;background:var(--accent2);transform:scaleX(0);transform-origin:left;transition:transform 1.6s var(--inout)}
+.intro.on .bar::after{transform:scaleX(1)}
+body:not(.ready) .hl>span,body:not(.ready) .fadeup,body:not(.ready) .hero img{animation-play-state:paused}
+body.lock{overflow:hidden}
+
+
+/* scroll fx */
+.fx{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.fx i{position:absolute;border-radius:50%;filter:blur(70px);will-change:transform;opacity:.55}
+.fx i:nth-child(1){width:52vw;height:52vw;left:-14vw;top:8vh;background:radial-gradient(circle,#e9c9a8 0%,rgba(233,201,168,0) 68%)}
+.fx i:nth-child(2){width:46vw;height:46vw;right:-12vw;top:42vh;background:radial-gradient(circle,#dcb89a 0%,rgba(220,184,154,0) 68%);opacity:.4}
+.fx i:nth-child(3){width:38vw;height:38vw;left:30vw;top:78vh;background:radial-gradient(circle,#f1ddc4 0%,rgba(241,221,196,0) 68%)}
+main,footer,header{position:relative}
+header{position:fixed}
+main{z-index:1}
+.prog{position:fixed;left:0;top:0;height:2px;width:100%;background:var(--accent);transform:scaleX(0);transform-origin:left;z-index:80;pointer-events:none}
+.split .pic{position:relative}
+.split .pic img{height:116%;position:absolute;left:0;top:-8%;width:100%}
+.hero img{height:118%;top:-9%}
+@media (max-width:900px){.fx i{filter:blur(50px)}.fx i:nth-child(3){display:none}}
+
+
+/* scroll-scrubbed hero */
+.scrub{position:relative;height:430vh;background:#14100d}
+.stick{position:sticky;top:0;height:100vh;min-height:560px;overflow:hidden;color:#fff}
+.stick video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.stick .shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(20,14,10,.35) 0%,rgba(20,14,10,0) 35%,rgba(20,14,10,.0) 40%,rgba(20,14,10,.78) 100%);pointer-events:none}
+.cap{position:absolute;left:var(--pad);right:var(--pad);bottom:clamp(60px,12vh,130px);max-width:1240px;margin:0 auto;display:grid;gap:26px;will-change:transform,opacity}
+.cap h2{font-size:clamp(40px,6.4vw,92px);max-width:900px}
+.cap h2 em,.cap h1 em{color:#f0d6bd}
+.cap .sub{max-width:480px;font-size:19px;color:rgba(255,255,255,.9)}
+.cap .row{display:flex;flex-wrap:wrap;gap:16px;margin-top:6px}
+.cap:not(.c1){opacity:0;pointer-events:none}
+.cap .eyebrow{text-shadow:0 1px 14px rgba(20,14,10,.6)}
+.cap h1,.cap h2,.cap .sub{text-shadow:0 2px 30px rgba(20,14,10,.45)}
+.sbar{position:absolute;left:var(--pad);right:var(--pad);bottom:26px;height:1px;background:rgba(255,255,255,.25);max-width:1240px;margin:0 auto}
+.sbar i{position:absolute;inset:0;background:#f0d6bd;transform:scaleX(0);transform-origin:left}
+@media (prefers-reduced-motion:reduce){.scrub{height:100vh}.cap:not(.c1){display:none}.sbar{display:none}}
+
+/* marquee */
+.marquee{overflow:hidden;border-block:1px solid var(--line);padding:22px 0;background:var(--bg)}
+.marquee .tr{display:flex;gap:56px;width:max-content;animation:mq 38s linear infinite;font-family:var(--serif);font-size:30px;font-style:italic;color:var(--muted)}
+.marquee .tr span::after{content:"✦";margin-left:56px;font-style:normal;color:var(--accent2);font-size:18px}
+@keyframes mq{to{transform:translateX(-50%)}}
+
+/* intro split */
+.split{display:grid;grid-template-columns:1fr 1fr;gap:clamp(36px,7vw,110px);align-items:center}
+.split.rev>:first-child{order:2}
+.split .pic{aspect-ratio:4/5;border-radius:6px}
+.split .pic img{width:100%;height:100%;object-fit:cover}
+.facts{display:flex;gap:44px;margin-top:40px;flex-wrap:wrap}
+.facts b{display:block;font-family:var(--serif);font-size:48px;font-weight:500;line-height:1;color:var(--accent)}
+.facts span{font-size:14px;color:var(--muted)}
+
+/* treatments cards */
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(18px,2.4vw,34px);margin-top:56px}
+.card{position:relative;display:block;border-radius:6px;overflow:hidden;background:var(--bg2);transition:transform .5s var(--out),box-shadow .5s var(--out)}
+.card:hover{transform:translateY(-8px);box-shadow:0 30px 50px -30px rgba(43,36,32,.5)}
+.card .im{aspect-ratio:4/5;overflow:hidden}
+.card .im img{width:100%;height:100%;object-fit:cover;transition:transform 1.2s var(--out)}
+.card:hover .im img{transform:scale(1.06)}
+.card .tx{padding:26px 28px 30px}
+.card .tx p{color:var(--muted);margin-top:10px;font-size:16px}
+.card .pr{display:flex;justify-content:space-between;margin-top:18px;font-size:14px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent)}
+
+/* dark band */
+.dark{background:var(--dark);color:#f5efe6}
+.dark .eyebrow{color:var(--accent2)}
+.dark p.lead{color:#cbbfb1}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:30px;margin-top:60px;counter-reset:s}
+.step{border-top:1px solid #54483f;padding-top:24px;counter-increment:s}
+.step::before{content:"0" counter(s);font-family:var(--serif);font-size:40px;color:var(--accent2);font-style:italic}
+.step h3{margin:8px 0 10px;font-size:26px}
+.step p{color:#cbbfb1;font-size:16px}
+
+/* cta */
+.cta{text-align:center}
+.cta h2{max-width:900px;margin:0 auto 34px}
+
+/* page head */
+.phead{padding-top:clamp(130px,16vw,200px);padding-bottom:clamp(30px,5vw,60px)}
+
+/* offer + calc */
+.offer{display:grid;grid-template-columns:1.5fr 1fr;gap:clamp(30px,5vw,80px);align-items:start}
+.grp{margin-bottom:54px}
+.grp h3{padding-bottom:16px;border-bottom:1px solid var(--ink);margin-bottom:6px}
+.item{display:grid;grid-template-columns:auto 1fr auto;gap:18px;align-items:center;padding:20px 8px;border-bottom:1px solid var(--line);cursor:pointer;transition:background .25s var(--out),padding .3s var(--out)}
+.item:hover{background:rgba(184,138,104,.1);padding-left:18px}
+.item input{position:absolute;opacity:0;pointer-events:none}
+.chk{width:24px;height:24px;border:1.5px solid var(--accent2);border-radius:50%;display:grid;place-items:center;transition:background .2s,border-color .2s,transform .16s var(--out)}
+.chk svg{width:12px;height:12px;stroke:#fff;stroke-width:3;fill:none;stroke-dasharray:20;stroke-dashoffset:20;transition:stroke-dashoffset .3s var(--out)}
+.item:active .chk{transform:scale(.9)}
+.item input:checked+.chk{background:var(--accent);border-color:var(--accent)}
+.item input:checked+.chk svg{stroke-dashoffset:0}
+.item input:focus-visible+.chk{outline:2px solid var(--accent);outline-offset:3px}
+.item .n{font-family:var(--serif);font-size:23px;line-height:1.2}
+.item .n small{display:block;font-family:var(--sans);font-size:14px;color:var(--muted);margin-top:2px}
+.item .p{font-family:var(--serif);font-size:24px;white-space:nowrap}
+.calc{position:sticky;top:96px;background:#fff;border:1px solid var(--line);border-radius:8px;padding:34px;box-shadow:0 30px 60px -40px rgba(43,36,32,.35)}
+.calc h3{margin-bottom:6px}
+.calc .empty{color:var(--muted);font-size:16px;margin:14px 0 6px}
+.calc ul{list-style:none;margin:16px 0}
+.calc li{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px dashed var(--line);font-size:16px;animation:fu .4s var(--out) both}
+.calc .tot{display:flex;justify-content:space-between;align-items:baseline;margin:18px 0 4px}
+.calc .tot b{font-family:var(--serif);font-size:48px;font-weight:500;line-height:1}
+.calc .dur{color:var(--muted);font-size:15px;margin-bottom:22px}
+.calc .btn{width:100%;justify-content:center}
+.note{font-size:13px;color:var(--muted);margin-top:14px}
+
+/* gallery */
+.gal{columns:3;column-gap:clamp(14px,2vw,26px)}
+.gal figure{break-inside:avoid;margin-bottom:clamp(14px,2vw,26px);position:relative;overflow:hidden;border-radius:6px;cursor:zoom-in;background:var(--bg2)}
+.gal img{width:100%;height:auto;transition:transform 1s var(--out)}
+.gal figure:hover img{transform:scale(1.05)}
+.gal figcaption{position:absolute;left:0;right:0;bottom:0;padding:50px 20px 18px;color:#fff;font-family:var(--serif);font-size:22px;background:linear-gradient(transparent,rgba(30,22,16,.65));opacity:0;transform:translateY(10px);transition:opacity .35s var(--out),transform .35s var(--out)}
+.gal figure:hover figcaption,.gal figure:focus-visible figcaption{opacity:1;transform:none}
+.lb{position:fixed;inset:0;z-index:100;background:rgba(24,18,14,.94);display:none;align-items:center;justify-content:center;padding:30px}
+.lb.open{display:flex;animation:fadein .3s var(--out)}
+@keyframes fadein{from{opacity:0}to{opacity:1}}
+.lb img{max-height:88vh;max-width:92vw;border-radius:4px;animation:zoom .45s var(--out)}
+@keyframes zoom{from{transform:scale(.95);opacity:0}to{transform:none;opacity:1}}
+.lb button{position:absolute;top:18px;right:22px;color:#fff;font-size:34px;width:48px;height:48px}
+
+/* contact */
+.contact{display:grid;grid-template-columns:1fr 1.1fr;gap:clamp(30px,6vw,100px)}
+.info dl{display:grid;gap:26px;margin-top:36px}
+.info dt{font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--accent)}
+.info dd{font-family:var(--serif);font-size:26px;line-height:1.25}
+form{display:grid;gap:22px}
+.fld{position:relative}
+.fld input,.fld textarea,.fld select{width:100%;background:transparent;border:0;border-bottom:1px solid var(--ink);padding:24px 0 10px;font:inherit;color:var(--ink);border-radius:0;outline:0;transition:border-color .25s}
+.fld textarea{resize:vertical;min-height:120px}
+.fld label{position:absolute;left:0;top:24px;color:var(--muted);pointer-events:none;transition:transform .25s var(--out),font-size .25s var(--out),color .25s;transform-origin:left}
+.fld input:focus,.fld textarea:focus,.fld select:focus{border-color:var(--accent)}
+.fld input:focus+label,.fld input:not(:placeholder-shown)+label,.fld textarea:focus+label,.fld textarea:not(:placeholder-shown)+label,.fld select+label{transform:translateY(-22px) scale(.78);color:var(--accent)}
+.ok{display:none;padding:26px;background:#fff;border:1px solid var(--line);border-radius:8px}
+.ok.show{display:block;animation:fu .5s var(--out)}
+.ok h3{margin-bottom:8px}
+.bk{margin-top:36px;padding:28px;border:1px solid var(--line);border-radius:8px;background:#fff}
+.bk p{color:var(--muted);margin:6px 0 18px;font-size:16px}
+
+/* footer */
+footer{background:var(--dark);color:#cbbfb1;padding:60px var(--pad) 36px}
+footer .wrap{display:flex;justify-content:space-between;gap:30px;flex-wrap:wrap;align-items:flex-end}
+footer .logo{color:#f5efe6;font-size:34px}
+footer a:hover{color:#fff}
+.demo{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);background:rgba(233,217,195,.96);color:#5a4332;font-size:12.5px;text-align:center;padding:8px 16px;letter-spacing:.03em;border-radius:999px;z-index:70;white-space:nowrap;box-shadow:0 8px 24px -10px rgba(43,36,32,.5)}
+.demo b{font-weight:500}
+
+@media (max-width:900px){
+  nav{position:fixed;inset:0;background:var(--bg);flex-direction:column;justify-content:center;gap:26px;opacity:0;pointer-events:none;transition:opacity .35s var(--out)}
+  body.menu nav{opacity:1;pointer-events:auto}
+  nav a{font-family:var(--serif);font-size:38px;letter-spacing:0;text-transform:none;color:var(--ink)!important}
+  .burger{display:block}
+  header.onhero:not(.solid) .logo{color:#fff}
+  body.menu .logo{color:var(--ink)!important}
+  .split,.split.rev,.offer,.contact{grid-template-columns:1fr}
+  .split.rev>:first-child{order:0}
+  .cards{grid-template-columns:1fr}
+  .steps{grid-template-columns:1fr 1fr}
+  .gal{columns:2}
+  .calc{position:static}
+  .scrollcue{display:none}
+}
+@media (max-width:520px){
+  body{font-size:16px}
+  .steps{grid-template-columns:1fr}
+  .gal{columns:1}
+  .item{gap:12px;padding:18px 4px}
+  .item .p{font-size:21px}
+  .calc{padding:26px}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+  .rv,.mask::after{opacity:1;transform:none}
+  .mask::after{display:none}
+  .hl>span{transform:none}
+  .fadeup{opacity:1;transform:none}
+}
+</style>
+</head>
+<body>
+<div class="demo"><b>Wersja demo</b> · projekt pokazowy IvanCdesign</div>
+
+<div class="fx" aria-hidden="true"><i></i><i></i><i></i></div>
+<div class="prog" id="prog" aria-hidden="true"></div>
+<div class="intro" id="intro" aria-hidden="true"><div class="lg" id="lg"></div><div class="bar"></div></div>
+
+<header id="hd" class="onhero">
+  <a class="logo" href="#/" aria-label="Aurea Beauty Studio, strona główna">Aurea <em>Studio</em></a>
+  <nav id="nav" aria-label="Menu główne">
+    <a href="#/" data-v="home">Start</a>
+    <a href="#/o-nas" data-v="about">O nas</a>
+    <a href="#/oferta" data-v="offer">Oferta i cennik</a>
+    <a href="#/galeria" data-v="gallery">Galeria</a>
+    <a href="#/kontakt" data-v="contact">Kontakt</a>
+  </nav>
+  <button class="burger" id="burger" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
+</header>
+
+<main>
+
+<!-- HOME -->
+<div class="view" id="v-home" data-hero="1">
+  <div class="scrub" id="scrub">
+    <div class="stick">
+      <video id="hv" muted playsinline preload="auto" poster="img/hero_poster.jpg" aria-label="Wnętrze salonu, w którym stopniowo zapalają się światła"></video>
+      <div class="shade"></div>
+      <div class="cap c1" id="c1">
+        <p class="eyebrow fadeup" style="color:#f0d6bd;margin:0">Salon kosmetyczny, Warszawa</p>
+        <h1><span class="hl"><span style="--d:1">Piękno bez</span></span><span class="hl"><span style="--d:2"><em>pośpiechu.</em></span></span></h1>
+        <p class="sub fadeup" style="--d:3">Spokojne wnętrze, indywidualna pielęgnacja i zabiegi dobrane do Twojej skóry.</p>
+      </div>
+      <div class="cap c2" id="c2"><p class="eyebrow" style="color:#f0d6bd;margin:0">01 · Światło</p><h2>Dzień zaczyna się <em>powoli.</em></h2></div>
+      <div class="cap c3" id="c3"><p class="eyebrow" style="color:#f0d6bd;margin:0">02 · Cisza</p><h2>Wchodzisz do środka <em>i zwalniasz.</em></h2></div>
+      <div class="cap c4" id="c4"><p class="eyebrow" style="color:#f0d6bd;margin:0">03 · Czas dla Ciebie</p><h2>Zacznijmy od <em>rozmowy.</em></h2>
+        <div class="row"><a class="btn light" href="#/kontakt" data-book>Umów wizytę <span class="ar">→</span></a><a class="btn ghost" href="#/oferta" style="color:#fff;border-color:rgba(255,255,255,.7)">Zobacz cennik</a></div>
+      </div>
+      <div class="scrollcue" id="cue">Przewiń</div>
+      <div class="sbar" aria-hidden="true"><i id="sbar"></i></div>
+    </div>
+  </div>
+
+  <div class="marquee" aria-hidden="true"><div class="tr">
+    <span>Pielęgnacja twarzy</span><span>Manicure</span><span>Oprawa oczu</span><span>Masaż twarzy</span><span>Peeling</span><span>Henna</span>
+    <span>Pielęgnacja twarzy</span><span>Manicure</span><span>Oprawa oczu</span><span>Masaż twarzy</span><span>Peeling</span><span>Henna</span>
+  </div></div>
+
+  <section>
+    <div class="wrap split">
+      <div>
+        <p class="eyebrow rv">Nasze podejście</p>
+        <h2 class="rv" style="--d:1">Skóra lubi <em>spokój</em> i konsekwencję.</h2>
+        <p class="lead rv" style="--d:2">Zaczynamy od rozmowy i oceny skóry. Dopiero potem wybieramy zabieg. Bez gotowych pakietów i bez presji.</p>
+        <div class="facts rv" style="--d:3">
+          <div><b>60</b><span>minut na konsultację<br>i pierwszy zabieg</span></div>
+          <div><b>1:1</b><span>jedna kosmetolożka<br>na jedną wizytę</span></div>
+        </div>
+        <p class="rv" style="--d:4;margin-top:40px"><a class="btn" href="#/o-nas">Poznaj salon <span class="ar">→</span></a></p>
+      </div>
+      <div class="pic mask rv" style="--d:1"><img src="img/p1.jpg" alt="Zabieg pielęgnacyjny twarzy z maską kremową" loading="lazy"></div>
+    </div>
+  </section>
+
+  <section style="background:var(--bg2)" class="alt">
+    <div class="wrap">
+      <p class="eyebrow rv">Zabiegi</p>
+      <h2 class="rv" style="--d:1">Trzy rzeczy, <em>o które pytacie</em> najczęściej.</h2>
+      <div class="cards">
+        <a class="card rv" style="--d:1" href="#/oferta"><div class="im"><img src="img/p2.jpg" alt="Kosmetyki do pielęgnacji twarzy" loading="lazy"></div><div class="tx"><h3>Pielęgnacja twarzy</h3><p>Oczyszczanie, nawilżenie i masaż dopasowane do typu skóry.</p><div class="pr"><span>od 180 zł</span><span>60 min</span></div></div></a>
+        <a class="card rv" style="--d:2" href="#/oferta"><div class="im"><img src="img/p4.jpg" alt="Manicure" loading="lazy"></div><div class="tx"><h3>Manicure</h3><p>Naturalny wygląd dłoni. Hybryda lub klasyczna stylizacja.</p><div class="pr"><span>od 120 zł</span><span>90 min</span></div></div></a>
+        <a class="card rv" style="--d:3" href="#/oferta"><div class="im"><img src="img/p3.jpg" alt="Oprawa oczu" loading="lazy"></div><div class="tx"><h3>Oprawa oczu</h3><p>Henna, laminacja brwi i lifting rzęs bez ciężkiego efektu.</p><div class="pr"><span>od 70 zł</span><span>30 min</span></div></div></a>
+      </div>
+    </div>
+  </section>
+
+  <section class="dark">
+    <div class="wrap">
+      <p class="eyebrow rv">Jak wygląda wizyta</p>
+      <h2 class="rv" style="--d:1">Cztery spokojne kroki.</h2>
+      <div class="steps">
+        <div class="step rv" style="--d:1"><h3>Rozmowa</h3><p>Opowiadasz o swojej skórze i oczekiwaniach.</p></div>
+        <div class="step rv" style="--d:2"><h3>Ocena</h3><p>Sprawdzamy skórę i dobieramy zabieg.</p></div>
+        <div class="step rv" style="--d:3"><h3>Zabieg</h3><p>Pracujemy w ciszy lub przy spokojnej muzyce.</p></div>
+        <div class="step rv" style="--d:4"><h3>Plan</h3><p>Dostajesz zalecenia do domu i termin kolejnej wizyty.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta">
+    <p class="eyebrow rv">Rezerwacja</p>
+    <h2 class="rv" style="--d:1">Wybierz termin, <em>resztą zajmiemy się my.</em></h2>
+    <p class="rv" style="--d:2"><a class="btn" href="#/kontakt" data-book>Umów wizytę <span class="ar">→</span></a></p>
+  </section>
+</div>
+
+<!-- ABOUT -->
+<div class="view" id="v-about">
+  <section class="phead">
+    <div class="wrap">
+      <p class="eyebrow rv">O nas</p>
+      <h1 class="rv" style="--d:1;font-size:clamp(44px,7vw,100px)">Mały salon, <em>duża uważność.</em></h1>
+    </div>
+  </section>
+  <section style="padding-top:20px">
+    <div class="wrap split">
+      <div class="pic mask rv" style="aspect-ratio:4/3"><img src="img/p5.jpg" alt="Recepcja salonu z kremową sofą i drewnianą ladą" loading="lazy"></div>
+      <div>
+        <h2 class="rv" style="font-size:clamp(32px,4vw,54px)">Miejsce, w którym <em>zwalniasz.</em></h2>
+        <p class="lead rv" style="--d:1">Aurea Studio to jeden gabinet i jedna osoba na wizycie. Nie prowadzimy zabiegów jeden po drugim. Zostawiamy czas, żeby nic nie było robione w biegu.</p>
+        <p class="lead rv" style="--d:2">Używamy kosmetyków o prostych składach i pracujemy na nich tak długo, jak ma to sens dla Twojej skóry.</p>
+      </div>
+    </div>
+  </section>
+  <section style="background:var(--bg2)" class="alt">
+    <div class="wrap">
+      <p class="eyebrow rv">Wartości</p>
+      <h2 class="rv" style="--d:1">Na czym nam zależy.</h2>
+      <div class="cards">
+        <div class="rv" style="--d:1"><h3>Szczerość</h3><p style="color:var(--muted);margin-top:10px">Mówimy, czego Twoja skóra potrzebuje, a co może poczekać.</p></div>
+        <div class="rv" style="--d:2"><h3>Czas</h3><p style="color:var(--muted);margin-top:10px">Wizyty nie są wciskane w siebie. Masz tyle czasu, ile trzeba.</p></div>
+        <div class="rv" style="--d:3"><h3>Prostota</h3><p style="color:var(--muted);margin-top:10px">Mało produktów, jasne zalecenia i efekty, które widać w lustrze.</p></div>
+      </div>
+    </div>
+  </section>
+  <section class="cta"><h2 class="rv">Zapraszamy na <em>pierwszą wizytę.</em></h2><p class="rv" style="--d:1"><a class="btn" href="#/oferta">Zobacz ofertę <span class="ar">→</span></a></p></section>
+</div>
+
+<!-- OFFER -->
+<div class="view" id="v-offer">
+  <section class="phead">
+    <div class="wrap">
+      <p class="eyebrow rv">Oferta i cennik</p>
+      <h1 class="rv" style="--d:1;font-size:clamp(44px,7vw,100px)">Zabiegi <em>i ceny.</em></h1>
+      <p class="lead rv" style="--d:2">Zaznacz to, co Cię interesuje. Po prawej zobaczysz łączną cenę i czas wizyty.</p>
+    </div>
+  </section>
+  <section style="padding-top:20px">
+    <div class="wrap offer">
+      <div id="menu"></div>
+      <aside class="calc rv" aria-live="polite">
+        <h3>Twoja wizyta</h3>
+        <p class="empty" id="empty">Nic jeszcze nie wybrano.</p>
+        <ul id="sel"></ul>
+        <div class="tot"><span>Razem</span><b id="total">0 zł</b></div>
+        <div class="dur" id="dur">Czas: 0 min</div>
+        <a class="btn" href="#/kontakt" data-book>Umów tę wizytę <span class="ar">→</span></a>
+        <p class="note">Ceny przykładowe, na potrzeby wersji demo.</p>
+      </aside>
+    </div>
+  </section>
+</div>
+
+<!-- GALLERY -->
+<div class="view" id="v-gallery">
+  <section class="phead">
+    <div class="wrap">
+      <p class="eyebrow rv">Galeria</p>
+      <h1 class="rv" style="--d:1;font-size:clamp(44px,7vw,100px)">Salon i <em>efekty zabiegów.</em></h1>
+    </div>
+  </section>
+  <section style="padding-top:20px">
+    <div class="wrap">
+      <div class="gal">
+        <figure class="rv" tabindex="0" data-lb="img/p0.jpg"><img src="img/p0.jpg" alt="Gabinet zabiegowy" loading="lazy"><figcaption>Gabinet</figcaption></figure>
+        <figure class="rv" style="--d:1" tabindex="0" data-lb="img/p1.jpg"><img src="img/p1.jpg" alt="Zabieg na twarz" loading="lazy"><figcaption>Zabieg na twarz</figcaption></figure>
+        <figure class="rv" style="--d:2" tabindex="0" data-lb="img/p2.jpg"><img src="img/p2.jpg" alt="Kosmetyki do pielęgnacji" loading="lazy"><figcaption>Pielęgnacja</figcaption></figure>
+        <figure class="rv" tabindex="0" data-lb="img/p3.jpg"><img src="img/p3.jpg" alt="Promienna cera" loading="lazy"><figcaption>Promienna cera</figcaption></figure>
+        <figure class="rv" style="--d:1" tabindex="0" data-lb="img/p4.jpg"><img src="img/p4.jpg" alt="Naturalny manicure" loading="lazy"><figcaption>Manicure</figcaption></figure>
+        <figure class="rv" style="--d:2" tabindex="0" data-lb="img/p5.jpg"><img src="img/p5.jpg" alt="Recepcja" loading="lazy"><figcaption>Recepcja</figcaption></figure>
+      </div>
+      <p class="note" style="margin-top:20px">Zdjęcia w wersji demo wygenerowano z użyciem AI. W gotowej stronie zastąpią je prawdziwe zdjęcia salonu.</p>
+    </div>
+  </section>
+</div>
+
+<!-- CONTACT -->
+<div class="view" id="v-contact">
+  <section class="phead">
+    <div class="wrap">
+      <p class="eyebrow rv">Kontakt</p>
+      <h1 class="rv" style="--d:1;font-size:clamp(44px,7vw,100px)">Napisz <em>do nas.</em></h1>
+    </div>
+  </section>
+  <section style="padding-top:20px">
+    <div class="wrap contact">
+      <div class="info rv">
+        <p class="lead" style="margin-top:0">Odpowiadamy w ciągu jednego dnia roboczego. Wizytę możesz też zarezerwować online.</p>
+        <dl>
+          <div><dt>Adres</dt><dd>ul. Przykładowa 12<br>00-001 Warszawa</dd></div>
+          <div><dt>Godziny</dt><dd>Pon.–Pt. 10:00–19:00<br>Sob. 10:00–15:00</dd></div>
+          <div><dt>Telefon i e-mail</dt><dd>+48 000 000 000<br>kontakt@przyklad.pl</dd></div>
+        </dl>
+        <div class="bk">
+          <h3>Rezerwacja online</h3>
+          <p>W gotowej stronie ten przycisk prowadzi do kalendarza salonu w Booksy.</p>
+          <a class="btn" href="https://booksy.com" target="_blank" rel="noopener" data-demo>Zarezerwuj w Booksy <span class="ar">↗</span></a>
+        </div>
+      </div>
+      <div class="rv" style="--d:1">
+        <form id="f" novalidate>
+          <div class="fld"><input id="fn" name="name" placeholder=" " autocomplete="name" required><label for="fn">Imię i nazwisko</label></div>
+          <div class="fld"><input id="fe" name="email" type="email" placeholder=" " autocomplete="email" required><label for="fe">E-mail</label></div>
+          <div class="fld"><input id="fp" name="phone" type="tel" placeholder=" " autocomplete="tel"><label for="fp">Telefon (opcjonalnie)</label></div>
+          <div class="fld"><textarea id="fm" name="msg" placeholder=" " required></textarea><label for="fm">Wiadomość</label></div>
+          <p class="note" id="err" style="color:#a33;display:none;margin:0">Uzupełnij imię, poprawny e-mail i wiadomość.</p>
+          <div><button class="btn" type="submit">Wyślij wiadomość <span class="ar">→</span></button></div>
+        </form>
+        <div class="ok" id="ok" role="status"><h3>Dziękujemy za wiadomość.</h3><p style="color:var(--muted)">To wersja demo. W gotowej stronie wiadomość trafia od razu na adres e-mail salonu.</p></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div><a class="logo" href="#/">Aurea <em style="color:var(--accent2)">Studio</em></a><p style="margin-top:8px;font-size:15px">ul. Przykładowa 12, Warszawa</p></div>
+    <div style="font-size:14px;text-align:right">Wersja demo. Projekt i wykonanie: <a href="#/" style="text-decoration:underline">IvanCdesign</a><br>© Aurea Studio (nazwa przykładowa)</div>
+  </div>
+</footer>
+
+<div class="lb" id="lb" role="dialog" aria-label="Powiększone zdjęcie"><button aria-label="Zamknij">×</button><img alt=""></div>
+
+<script>
+(function(){
+  var views={"":"home","/":"home","/o-nas":"about","/oferta":"offer","/galeria":"gallery","/kontakt":"contact"};
+  var hd=document.getElementById('hd'),cur=null,io;
+  function route(){
+    var h=location.hash.replace(/^#/,''); var key=views[h]||'home';
+    document.querySelectorAll('.view').forEach(function(v){v.classList.remove('show')});
+    var el=document.getElementById('v-'+key); el.classList.add('show'); cur=key;
+    document.querySelectorAll('nav a').forEach(function(a){a.classList.toggle('on',a.dataset.v===key)});
+    document.body.classList.remove('menu'); document.getElementById('burger').setAttribute('aria-expanded','false');
+    window.scrollTo({top:0,behavior:'instant'});
+    hd.classList.toggle('onhero',key==='home'); setHd();
+    document.title=({home:'Aurea Beauty Studio | wersja demo',about:'O nas | Aurea Studio',offer:'Oferta i cennik | Aurea Studio',gallery:'Galeria | Aurea Studio',contact:'Kontakt | Aurea Studio'})[key];
+    observe(el);
+  }
+  function observe(el){
+    if(io) io.disconnect();
+    var items=el.querySelectorAll('.rv,.mask');
+    if(!('IntersectionObserver' in window)){items.forEach(function(i){i.classList.add('in')});return}
+    io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{threshold:.12,rootMargin:'0px 0px -6% 0px'});
+    items.forEach(function(i){i.classList.remove('in');io.observe(i)});
+  }
+  function setHd(){var sc=document.getElementById('scrub'),lim=40;if(cur==='home'&&sc&&sc.offsetHeight>window.innerHeight*1.5)lim=sc.offsetHeight-window.innerHeight*1.15;hd.classList.toggle('solid',window.scrollY>lim||cur!=='home')}
+  window.addEventListener('scroll',setHd,{passive:true});
+  window.addEventListener('hashchange',route);
+
+  document.getElementById('burger').addEventListener('click',function(){
+    var o=document.body.classList.toggle('menu'); this.setAttribute('aria-expanded',o)});
+
+  /* menu + calculator */
+  var data=[
+   {g:'Pielęgnacja twarzy',i:[['Konsultacja i oczyszczanie','Ocena skóry, oczyszczanie, maska',180,60],['Peeling kwasowy','Delikatne złuszczanie',220,45],['Głębokie nawilżenie','Serum, maska i masaż',320,75],['Masaż twarzy','Rozluźnienie i napięcie skóry',200,50]]},
+   {g:'Dłonie i stopy',i:[['Manicure hybrydowy','Opracowanie i kolor',120,90],['Manicure klasyczny','Bez lakieru, naturalny efekt',90,60],['Pedicure','Opracowanie i pielęgnacja',160,90]]},
+   {g:'Oprawa oczu',i:[['Henna brwi i rzęs','Koloryzacja i kształt',70,30],['Laminacja brwi','Uporządkowanie i połysk',150,60],['Lifting rzęs','Podkręcenie i odżywienie',190,75]]}
+  ];
+  var menu=document.getElementById('menu'),state={},html='',idx=0;
+  data.forEach(function(g){
+    html+='<div class="grp rv"><h3>'+g.g+'</h3>';
+    g.i.forEach(function(x){
+      html+='<label class="item"><input type="checkbox" data-i="'+idx+'"><span class="chk"><svg viewBox="0 0 12 12"><path d="M2 6.5l2.5 2.5L10 3"/></svg></span><span class="n">'+x[0]+'<small>'+x[1]+' · '+x[3]+' min</small></span><span class="p">'+x[2]+' zł</span></label>';
+      state[idx]=x; idx++;
+    }); html+='</div>';
+  });
+  menu.innerHTML=html;
+  function calc(){
+    var sel=menu.querySelectorAll('input:checked'),sum=0,min=0,li='';
+    sel.forEach(function(c){var x=state[c.dataset.i];sum+=x[2];min+=x[3];li+='<li><span>'+x[0]+'</span><span>'+x[2]+' zł</span></li>'});
+    document.getElementById('sel').innerHTML=li;
+    document.getElementById('empty').style.display=sel.length?'none':'block';
+    document.getElementById('total').textContent=sum+' zł';
+    var h=Math.floor(min/60),m=min%60;
+    document.getElementById('dur').textContent='Czas: '+(h?h+' h ':'')+(m||!h?m+' min':'');
+  }
+  menu.addEventListener('change',calc);
+
+  /* booking buttons (demo) */
+  document.querySelectorAll('[data-demo]').forEach(function(a){a.addEventListener('click',function(e){e.preventDefault();alert_demo()})});
+  function alert_demo(){var b=document.querySelector('.bk p');b.textContent='Wersja demo: tu otworzy się kalendarz salonu w Booksy.'}
+
+  /* gallery lightbox */
+  var lb=document.getElementById('lb'),lbi=lb.querySelector('img'),last=null;
+  document.querySelectorAll('.gal figure').forEach(function(f){
+    function open(){last=f;lbi.src=f.dataset.lb;lbi.alt=f.querySelector('img').alt;lb.classList.add('open');lb.querySelector('button').focus()}
+    f.addEventListener('click',open);f.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();open()}});
+  });
+  function close(){lb.classList.remove('open');if(last)last.focus()}
+  lb.addEventListener('click',close);
+  document.addEventListener('keydown',function(e){if(e.key==='Escape'){close();document.body.classList.remove('menu')}});
+
+  /* form */
+  var f=document.getElementById('f');
+  f.addEventListener('submit',function(e){
+    e.preventDefault();
+    var ok=f.name.value.trim()&&/^\S+@\S+\.\S+$/.test(f.email.value.trim())&&f.msg.value.trim();
+    document.getElementById('err').style.display=ok?'none':'block';
+    if(!ok)return;
+    f.style.display='none';document.getElementById('ok').classList.add('show');
+  });
+
+  route();
+
+
+  /* scroll effects: subtle, transform only */
+  (function(){
+    if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+    var blobs=document.querySelectorAll('.fx i'),prog=document.getElementById('prog'),tick=false;
+    function frame(){
+      tick=false;
+      var y=window.scrollY,vh=window.innerHeight,doc=document.documentElement.scrollHeight-vh;
+      prog.style.transform='scaleX('+(doc>0?Math.min(1,y/doc):0)+')';
+      var sp=[-.12,.09,-.06];
+      blobs.forEach(function(b,i){b.style.transform='translate3d('+(Math.sin(y/700+i*2)*40)+'px,'+(y*sp[i])+'px,0) scale('+(1+Math.sin(y/900+i)*.06)+')'});
+      var v=document.querySelector('.view.show');if(!v)return;
+      v.querySelectorAll('.split .pic').forEach(function(p){
+        var r=p.getBoundingClientRect();if(r.bottom<-100||r.top>vh+100)return;
+        var k=((r.top+r.height/2)-vh/2)/vh;var im=p.querySelector('img');
+        im.style.translate='0 '+(-k*r.height*.08)+'px';
+      });
+    }
+    function onScroll(){if(!tick){tick=true;requestAnimationFrame(frame)}}
+    window.addEventListener('scroll',onScroll,{passive:true});window.addEventListener('resize',onScroll);
+    window.addEventListener('hashchange',function(){setTimeout(frame,60)});
+    frame();
+  })();
+
+
+  /* scroll-scrubbed hero video */
+  (function(){
+    var sc=document.getElementById('scrub'),v=document.getElementById('hv');
+    if(!sc||!v)return;
+    var reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var small=window.innerWidth<720;
+    v.src=small?'vid/hero_m.mp4':'vid/hero.mp4';
+    if(reduce){v.style.display='none';sc.style.backgroundImage='url(img/hero_poster.jpg)';sc.style.backgroundSize='cover';return}
+    var caps=[document.getElementById('c1'),document.getElementById('c2'),document.getElementById('c3'),document.getElementById('c4')];
+    var sbar=document.getElementById('sbar'),cue=document.getElementById('cue');
+    var cur=0,target=0,dur=0,raf=null,lastSet=-1;
+    function trap(p,a,b,c,d){if(p<=a||p>=d)return 0;if(p<b)return (p-a)/(b-a);if(p<=c)return 1;return 1-(p-c)/(d-c)}
+    function prog(){var r=sc.getBoundingClientRect(),h=sc.offsetHeight-window.innerHeight;return Math.max(0,Math.min(1,-r.top/(h>0?h:1)))}
+    function paint(p){
+      var o=[trap(p,-1,-.5,.22,.32),trap(p,.30,.40,.52,.62),trap(p,.58,.68,.78,.86),trap(p,.84,.92,2,3)];
+      o[0]=p<.22?1:Math.max(0,1-(p-.22)/.1);
+      o[3]=p<.84?0:Math.min(1,(p-.84)/.08);
+      caps.forEach(function(c,i){
+        c.style.opacity=o[i];
+        c.style.transform='translate3d(0,'+((1-o[i])*(i===0?-24:24))+'px,0)';
+        c.style.pointerEvents=o[i]>.6?'auto':'none';
+      });
+      sbar.style.transform='scaleX('+p+')';
+      cue.style.opacity=Math.max(0,1-p*8);
+    }
+    function loop(){
+      raf=null;target=prog()*dur;
+      cur+=(target-cur)*.14;
+      if(Math.abs(target-cur)<.004)cur=target;
+      if(dur&&Math.abs(cur-lastSet)>.004){try{v.currentTime=cur}catch(e){}lastSet=cur}
+      paint(dur?cur/dur:prog());
+      if(Math.abs(target-cur)>.004)raf=requestAnimationFrame(loop);
+    }
+    function kick(){if(!raf)raf=requestAnimationFrame(loop)}
+    v.addEventListener('loadedmetadata',function(){dur=v.duration||6;v.pause();kick()});
+    v.addEventListener('error',function(){v.style.display='none';sc.style.backgroundImage='url(img/hero_poster.jpg)';sc.style.backgroundSize='cover'});
+    window.addEventListener('scroll',kick,{passive:true});window.addEventListener('resize',kick);
+    window.addEventListener('hashchange',function(){cur=0;lastSet=-1;setTimeout(kick,80)});
+    v.load();paint(0);
+  })();
+
+  /* intro */
+  (function(){
+    var intro=document.getElementById('intro'),lg=document.getElementById('lg');
+    var reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if(reduce||cur!=='home'){intro.remove();document.body.classList.add('ready');return}
+    var t='Aurea Studio',h='',i=0;
+    t.split('').forEach(function(c){
+      if(c===' '){h+='<span style="--i:'+i+'">&nbsp;</span>'}else{h+='<span style="--i:'+i+'">'+(i>5?'<em>'+c+'</em>':c)+'</span>'}i++;
+    });
+    lg.innerHTML=h;document.body.classList.add('lock');
+    function play(){
+      requestAnimationFrame(function(){requestAnimationFrame(function(){intro.classList.add('on')})});
+      setTimeout(function(){intro.classList.add('out');document.body.classList.add('ready')},2100);
+      setTimeout(function(){document.body.classList.remove('lock');intro.remove()},3300);
+    }
+    if(document.visibilityState==='visible')play();
+    else document.addEventListener('visibilitychange',function f(){if(document.visibilityState==='visible'){document.removeEventListener('visibilitychange',f);play()}});
+    window.addEventListener('hashchange',function(){if(document.getElementById('intro')){document.body.classList.add('ready')}},{once:true});
+  })();
+})();
+</script>
+</body>
+</html>
